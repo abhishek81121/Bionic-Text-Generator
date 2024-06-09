@@ -9,11 +9,23 @@ import { Button, ButtonGroup } from "@nextui-org/button";
 
 export default function Home() {
   const [file, setFile] = useState<File>();
+  const [fileContent, setFileContent] = useState("");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-    }
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    try {
+      if (e.target.files) {
+        if (e.target.files[0].name.slice(-3) != "txt") {
+          console.log("unsupported format");
+        } else {
+          setFile(e.target.files[0]);
+          const file = e.target.files[0];
+          if (file) {
+            const text = await file.text();
+            setFileContent(text);
+          }
+        }
+      }
+    } catch (err) {}
   };
   const handleButtonClick = () => {
     // Programmatically trigger the file input click event
@@ -31,7 +43,7 @@ export default function Home() {
         <Textarea
           label="Paste Your Text here"
           placeholder="Text Here"
-          className="sm:min-w-screen min-w-screen mt-10"
+          className="sm:min-w-screen lg:w-3/4 mt-10 position relative left mx-auto"
         />
         <Divider
           orientation="horizontal"
@@ -41,7 +53,15 @@ export default function Home() {
         <Button className="mt-10" onClick={handleButtonClick}>
           Upload File
         </Button>
-        <input type="file" className="hidden" ref={fileInputRef}></input>
+        <br></br>
+        {file ? `${file.name}` : ""}
+        <input
+          type="file"
+          className="hidden"
+          onChange={handleFileChange}
+          accept=".txt"
+          ref={fileInputRef}
+        ></input>
       </div>
 
       <BackgroundBeams />
